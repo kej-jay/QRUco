@@ -65,6 +65,24 @@
         snapshot();
 
         var markers = detector.detect(imageData);
+
+        if (markers.length > 0) {
+          var ids = markers.map(marker => marker.id);
+
+          console.log(ids);
+
+          if (ids.includes(257) && !ids.includes(258) && ids.includes(259)) {
+            document.body.style.background = "red";
+          } else if (ids.includes(257) && ids.includes(258) && !ids.includes(259)) {
+            document.body.style.background = "green";
+          } else if (!ids.includes(257) && ids.includes(258) && ids.includes(259)) {
+            document.body.style.background = "grey";
+          } else {
+            // default
+            document.body.style.background = "white";
+          }
+        }
+
         drawCorners(markers);
         drawId(markers);
       }
