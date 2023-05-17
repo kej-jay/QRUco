@@ -10,6 +10,7 @@
 
   <script>
     var video, canvas, context, imageData, detector;
+    var lastDetected, lastDetectedCount = 0, detectionThreshold = 10;
 
     function onLoad() {
       video = document.getElementById("video");
@@ -58,6 +59,38 @@
       requestAnimationFrame(tick);
     }
 
+    // create a function, that takes in the current ids and based
+    function handleMarkers(ids) {
+      if (ids.includes(257) && !ids.includes(258) && ids.includes(259)) {
+        detected = 'no';
+      } else if (ids.includes(257) && ids.includes(258) && !ids.includes(259)) {
+        detected = 'yes';
+      } else if (!ids.includes(257) && ids.includes(258) && ids.includes(259)) {
+        detected = 'maybe';
+      } else {
+        detected = 'default';
+      }
+
+      if (detected == lastDetected) {
+        lastDetectedCount++;
+      } else {
+        lastDetected = detected;
+        lastDetectedCount = 1;
+      }
+
+      if (lastDetectedCount > detectionThreshold) {
+        if (detected == 'yes') {
+          document.body.style.background = "green";
+        } else if (detected == 'no') {
+          document.body.style.background = "red";
+        } else if (detected == 'maybe') {
+          document.body.style.background = "gray";
+        } else {
+          document.body.style.background = "white";
+        }
+      }
+    }
+
     function tick() {
       requestAnimationFrame(tick);
 
@@ -69,18 +102,7 @@
         if (markers.length > 0) {
           var ids = markers.map(marker => marker.id);
 
-          console.log(ids);
-
-          if (ids.includes(257) && !ids.includes(258) && ids.includes(259)) {
-            document.body.style.background = "red";
-          } else if (ids.includes(257) && ids.includes(258) && !ids.includes(259)) {
-            document.body.style.background = "green";
-          } else if (!ids.includes(257) && ids.includes(258) && ids.includes(259)) {
-            document.body.style.background = "grey";
-          } else {
-            // default
-            document.body.style.background = "white";
-          }
+          handleMarkers(ids);
         }
 
         drawCorners(markers);
@@ -150,7 +172,7 @@
 <body style="font-family: monospace;">
 
   <center>
-    <div style="margin: 10px;"><strong>-= Augmented Reality Marker Detector =-</strong></div>
+    <div style="margin: 10px;"><strong>QRUco Voting Demo</strong></div>
     <video id="video" autoplay="true" style="display:none;"></video>
     <canvas id="canvas" style="width:640px; height:480px;"></canvas>
     <div style="margin: 15px;"><strong>Powered by a modified version of <a
